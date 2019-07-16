@@ -1,5 +1,6 @@
 from models import Detail, create_detail_from_data
 from board import Board
+from typing import List
 
 
 class GameLogic(object):
@@ -41,6 +42,14 @@ class GameLogic(object):
                 violet, light_green, dark_blue]
         self.__board = Board(5, 10)
 
+    @property
+    def details(self) -> List[Detail]:
+        return self.__details
+
+    @property
+    def board(self) -> Board:
+        return self.__board
+
     def get_detail_by_name(self, name: str) -> Detail:
         if name in self.__named_details:
             return self.__named_details[name]
@@ -59,3 +68,6 @@ class GameLogic(object):
             for coordinates in self.get_coordinates():
                 for side in detail.sides():
                     # try to put detail
+                    continue
+
+        pass

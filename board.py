@@ -1,5 +1,5 @@
 from models import Detail, Side
-from typing import List
+from typing import List, Generator
 
 
 class Board(object):
@@ -30,10 +30,11 @@ class Board(object):
        _side.fill(self.__board)
        return _side.calculate_square() == 500
     
-    def get_coordinates(self):
-        for x in range(self.__height):
-            for y in range(self.__width):
-                yield (x, y)
+    def get_coordinates(self) -> Generator[tuple, tuple, None]:
+        for x in range(len(self.__board)):
+            for y in range(len(self.__board[0])):
+                if not self.__board[x][y]:
+                    yield (x, y)
 
     def _check_if_detail_can_fit(self, detail: Detail, x: int, y: int) -> bool:
         _side_index = detail.side_index

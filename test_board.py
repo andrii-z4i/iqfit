@@ -116,3 +116,14 @@ class BoardTest(TestCase):
         b = Board(2, 2)
         coordinates = [(x, y) for (x, y) in b.get_coordinates()]
         self.assertListEqual(coordinates, [(0, 0), (0, 1), (1, 0), (1, 1)])
+
+    def test_get_coordinates_after_detail_set(self):
+        b = Board(2, 2)
+        d = Detail(2, 2, 2)
+        d.fill([[[0, 0], [1, 0]], [[1, 0], [1, 1]]])
+        d.rotate()
+        b.add_object(d, 0, 0)
+
+        coordinates = [(x, y) for (x, y) in b.get_coordinates()]
+        self.assertListEqual(coordinates, [(0, 0)])
+
