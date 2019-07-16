@@ -113,6 +113,6 @@ class BoardTest(TestCase):
                 ex.exception.args[0])
 
     def test_get_coordinates(self):
-        b = Board(5, 10)
-        for (x, y) in b.get_coordinates():
-            print(x, y)
+        b = Board(2, 2)
+        coordinates = [(x, y) for (x, y) in b.get_coordinates()]
+        self.assertListEqual(coordinates, [(0, 0), (0, 1), (1, 0), (1, 1)])
