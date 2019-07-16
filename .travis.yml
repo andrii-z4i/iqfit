@@ -1,5 +1,5 @@
 language: python
 python:
-        - "3.7"
+        - "3.6"
 script:
-        - python -m unittest discover -p test_*.py
+        - python -m unittest discover -p test_*.py -s .
