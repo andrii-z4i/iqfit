@@ -76,10 +76,15 @@ class Side(object):
 
 class Detail(object):
 
-    def __init__(self, height: int, width: int, depth: int):
+    def __init__(self, height: int, width: int, depth: int, name: str = ''):
         self.__object = [[[0 for k in range(depth)] for j in range(width)] for i in range(height)]
         self.__side: int = 2
         self.__rotation_steps: List[int] = []
+        self.__name = name
+
+    @property
+    def name(self):
+        return self.__name
     
     @property
     def value(self) -> List[List[List[int]]]:
@@ -185,8 +190,13 @@ class Detail(object):
 
         return self.get_side(_opposite_sides[self.__side])
 
+    @property
+    def sides(self):
+        return [2, 3, 4, 5] 
+    
+
         
-def create_detail_from_data(data: List[List[List[int]]]) -> Detail:
-    _return = Detail(len(data), len(data[0]), len(data[0][0]))
+def create_detail_from_data(name: str, data: List[List[List[int]]]) -> Detail:
+    _return = Detail(len(data), len(data[0]), len(data[0][0]), name)
     _return.fill(data)
     return _return
