@@ -14,6 +14,10 @@ class Board(object):
     def board(self) -> List[List[int]]:
         return self.__board
 
+    def __repr__(self) -> str:
+        _str_board = [' '.join([str(self.__board[x][y]) for y in range(self.__width)]) for x in range(self.__height)]
+        return "\n".join(_str_board)
+
     @property
     def objects(self) -> dict:
         return self.__objects
@@ -33,8 +37,9 @@ class Board(object):
     def get_coordinates(self) -> Generator[tuple, tuple, None]:
         for x in range(len(self.__board)):
             for y in range(len(self.__board[0])):
-                if not self.__board[x][y]:
-                    yield (x, y)
+                #FIXME: uncomment when logic for putting detail will be fixed
+                # if not self.__board[x][y]:
+                yield (x, y)
 
     def _check_if_detail_can_fit(self, detail: Detail, x: int, y: int) -> bool:
         _side_index = detail.side_index

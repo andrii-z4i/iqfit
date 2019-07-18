@@ -2,6 +2,7 @@ from models import Detail, create_detail_from_data
 from board import Board
 from typing import List, Generator, Tuple 
 from copy import deepcopy
+from random import shuffle
 
 
 class GameLogic(object):
@@ -48,6 +49,16 @@ class GameLogic(object):
     def details(self) -> List[Detail]:
         return self.__details
 
+    def has_details(self) -> bool:
+        return len(self.__details)
+
+    @property
+    def first_detail(self):
+        return self.__details[0]
+
+    def shuffle_details(self):
+        shuffle(self.__details)
+
     @property
     def board(self) -> Board:
         return self.__board
@@ -59,20 +70,37 @@ class GameLogic(object):
         raise Exception('Element not found')
 
     def put_detail_on_board(
-            self, detail_name: str, coordinates: tuple) -> None:
-        _detail = self.get_detail_by_name(detail_name)
-        self.__details.index(_detail)
-        self.__board.add_object(_detail, coordinates[0], coordinates[1])
-        self.__details.remove(_detail)
+            self, detail: Detail, coordinates: tuple) -> None:
+        self.__details.index(detail)
+        self.__board.add_object(detail, coordinates[0], coordinates[1])
+        self.__details.remove(detail)
 
 
-def find_solutions(game_logic: GameLogic) -> Generator[Board, Board, bool]:
-    for detail in game_logic.details:
-        _board = deepcopy(game_logic.board)
+def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Board, bool]:
+    print('Attempt %d' % attempt)
+    attempt += 1
+    _game_logic = deepcopy(game_logic)
+    print(_game_logic.details)
+    while _game_logic.has_details():
+        detail = _game_logic.first_detail
+        # print('Try to put %s Detail' % (detail.name))
+        _board = deepcopy(_game_logic.board)
         (can_do_it, coordinates) = try_to_put_detail(detail, _board)
         if can_do_it:
-            print('%s Detail was put to coordinates (%d, %d)' % (detail.name, coordinates[0], coordinates[1]))
-            game_logic.put_detail_on_board(detail.name, coordinates)
+            # print('%s Detail was put to coordinates (%d, %d)' % (detail.name, coordinates[0], coordinates[1]))
+            _game_logic.put_detail_on_board(detail, coordinates)
+            # print(_game_logic.details)
+        else:
+            # print('Can not put %s Detail' % (detail.name))
+            break
+    if not _game_logic.has_details():
+        yield _game_logic.board
+    else:
+        _game_logic = deepcopy(game_logic)
+        _game_logic.shuffle_details()
+        yield from find_solutions(_game_logic, attempt)
+
+
 
 def try_to_put_detail(detail: Detail, board: Board) -> Tuple[bool, Tuple]:
     j = 0
@@ -83,7 +111,7 @@ def try_to_put_detail(detail: Detail, board: Board) -> Tuple[bool, Tuple]:
                 detail.rotate()
                 try:
                     board.add_object(detail, coordinates[0], coordinates[1])
-                    print('j = %d' % j)
+                    # print('j = %d' % j)
                     return True, coordinates
                 except Exception as ex:
                     # print(ex)
