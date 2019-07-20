@@ -18,6 +18,23 @@ class Side(object):
     def height(self) -> int:
         return len(self.__array)
 
+    def __repr__(self):
+        _str_board = [' '.join([str(self.__array[y][x]) for x in range(self.width)]) for y in range(self.height)]
+        return "\n".join(_str_board)
+
+    def __str__(self):
+        return self.__repr__() 
+
+    def get_height_offset(self) -> int:
+        for y in range(self.height):
+            if self.__array[y][0]:
+                return y
+
+    def get_width_offset(self) -> int:
+        for x in range(self.width):
+            if self.__array[self.get_height_offset()][x]:
+                return x
+
     def fill(self, side: List) -> any:
         if len(side) != self.height:
             raise Exception("Wrong height")
@@ -111,6 +128,12 @@ class Detail(object):
     @property
     def side_index(self) -> int:
         return self.__side
+
+    def __repr__(self) -> str:
+        return "\nside: %d\n%s" % (self.__side, str(self.get_current_side()))
+
+    def __str__(self) -> str:
+        return self.__repr__() 
 
     def rotate(self, direction = 1) -> None:  
         # direction = 1 - left, 

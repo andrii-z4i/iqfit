@@ -77,10 +77,10 @@ class GameLogic(object):
 
 
 def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Board, bool]:
-    print('Attempt %d' % attempt)
+    # print('Attempt %d' % attempt)
     attempt += 1
     _game_logic = deepcopy(game_logic)
-    print(_game_logic.details)
+    # print(_game_logic.details)
     while _game_logic.has_details():
         detail = _game_logic.first_detail
         # print('Try to put %s Detail' % (detail.name))
