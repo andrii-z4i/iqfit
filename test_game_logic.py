@@ -1,5 +1,5 @@
 from unittest import TestCase
-from game_logic import GameLogic, find_solutions 
+from game_logic import GameLogic, find_solutions2 
 
 
 class GameLogicTest(TestCase):
@@ -17,7 +17,7 @@ class GameLogicTest(TestCase):
         g.put_detail_on_board(detail, (0, 0))
         self.assertEqual(len(g.details), 9)
 
-    def _test_find_solutions(self):
+    def test_find_solutions(self):
         # FIXME: find_solutions must be rewritten to avoid recursion 
         g = GameLogic()
         self.assertEqual(len(g.details), 10)
@@ -47,5 +47,4 @@ class GameLogicTest(TestCase):
         print('')
         print(g.board)
         self.assertEqual(len(g.details), 4)
-        for solution in find_solutions(g, 0):
-            print(solution)
+        find_solutions2(g)

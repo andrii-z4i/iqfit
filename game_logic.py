@@ -77,21 +77,14 @@ class GameLogic(object):
 
 
 def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Board, bool]:
-    # print('Attempt %d' % attempt)
     attempt += 1
     _game_logic = deepcopy(game_logic)
-    # print(_game_logic.details)
     while _game_logic.has_details():
         detail = _game_logic.first_detail
-        # print('Try to put %s Detail' % (detail.name))
-        _board = deepcopy(_game_logic.board)
-        (can_do_it, coordinates) = try_to_put_detail(detail, _board)
+        (can_do_it, coordinates) = try_to_put_detail(detail, board)
         if can_do_it:
-            # print('%s Detail was put to coordinates (%d, %d)' % (detail.name, coordinates[0], coordinates[1]))
             _game_logic.put_detail_on_board(detail, coordinates)
-            # print(_game_logic.details)
         else:
-            # print('Can not put %s Detail' % (detail.name))
             break
     if not _game_logic.has_details():
         yield _game_logic.board
@@ -101,8 +94,19 @@ def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Boar
         yield from find_solutions(_game_logic, attempt)
 
 
+def find_solutions2(game_logic: GameLogic) -> Generator[Board, Board, bool]:
+    _list = list()
+    print(game_logic.details[:1])
+    for detail in game_logic.details[:1]:
+        for (current_state_of_detail, coordinates) in try_to_put_detail(detail, game_logic.board):
+            _list.append((current_state_of_detail, coordinates))
+    print(len(_list))
+    # print(_list)
 
-def try_to_put_detail(detail: Detail, board: Board) -> Tuple[bool, Tuple]:
+
+
+
+def try_to_put_detail(detail: Detail, board: Board) -> Generator[Tuple[Detail, Tuple], bool, bool]:
     j = 0
     for coordinates in board.get_coordinates():
         for side in detail.sides:
@@ -110,10 +114,9 @@ def try_to_put_detail(detail: Detail, board: Board) -> Tuple[bool, Tuple]:
             for i in range(4):
                 detail.rotate()
                 try:
-                    board.add_object(detail, coordinates[0], coordinates[1])
-                    # print('j = %d' % j)
-                    return True, coordinates
+                    _board = deepcopy(board)
+                    _board.add_object(detail, coordinates[1], coordinates[0])
+                    yield (deepcopy(detail), (coordinates[1], coordinates[0]))
                 except Exception as ex:
-                    # print(ex)
                     j += 1
-    return False, (0, 0)
+    return False
