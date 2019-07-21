@@ -18,7 +18,6 @@ class GameLogicTest(TestCase):
         self.assertEqual(len(g.details), 9)
 
     def test_find_solutions(self):
-        # FIXME: find_solutions must be rewritten to avoid recursion 
         g = GameLogic()
         self.assertEqual(len(g.details), 10)
         detail = g.get_detail_by_name('GREEN')
@@ -44,7 +43,20 @@ class GameLogicTest(TestCase):
         detail.chose_side(5)
         detail.rotate(-1)
         g.put_detail_on_board(detail, (2, 4))
+        detail = g.get_detail_by_name('RED')
+        detail.chose_side(5)
+        detail.rotate(-1)
+        g.put_detail_on_board(detail, (6, 4))
         print('')
         print(g.board)
-        self.assertEqual(len(g.details), 4)
-        find_solutions2(g)
+        self.assertEqual(len(g.details), 3)
+        # self.assertEqual(len(g.details), 4)
+        for solution in find_solutions2(g):
+            print(solution)
+
+    def _test_find_all_solutions(self):
+        g = GameLogic()
+        self.assertEqual(len(g.details), 10)
+        for solution in find_solutions2(g):
+            print(solution)
+

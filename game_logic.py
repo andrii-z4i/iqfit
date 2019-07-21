@@ -3,30 +3,33 @@ from board import Board
 from typing import List, Generator, Tuple 
 from copy import deepcopy
 from random import shuffle
+from itertools import product
+import threading 
+from time import sleep
 
 
 class GameLogic(object):
 
     def __init__(self):
-        green = create_detail_from_data('GREEN', [[[0, 0], [1, 0]], [[1, 0], [1, 1]],
+        green = create_detail_from_data('GREEN', 'G',[[[0, 0], [1, 0]], [[1, 0], [1, 1]],
             [[0, 0], [1, 1]]])
-        pink = create_detail_from_data('PINK',[[[0, 0], [1, 0]], [[0, 0], [1, 0]],
+        pink = create_detail_from_data('PINK', 'P', [[[0, 0], [1, 0]], [[0, 0], [1, 0]],
             [[1, 0], [1, 1]], [[0, 0], [1, 1]]])
-        blue = create_detail_from_data('BLUE', [[[0, 0], [1, 0]], [[1, 0], [1, 0]],
+        blue = create_detail_from_data('BLUE', 'B', [[[0, 0], [1, 0]], [[1, 0], [1, 0]],
             [[0, 0], [1, 0]], [[1, 0], [1, 1]]])
-        yellow = create_detail_from_data('YELLOW', [[[0, 0], [1, 1]], [[0, 0], [1, 0]],
+        yellow = create_detail_from_data('YELLOW', 'Y', [[[0, 0], [1, 1]], [[0, 0], [1, 0]],
             [[1, 0], [1, 0]], [[1, 0], [1, 0]]])
-        red = create_detail_from_data('RED', [[[1, 0], [1, 1]], [[0, 0], [1, 0]],
+        red = create_detail_from_data('RED', 'R', [[[1, 0], [1, 1]], [[0, 0], [1, 0]],
             [[0, 0], [1, 0]], [[0, 0], [1, 1]]])
-        fox_red = create_detail_from_data('FOXRED', [[[0, 0], [1, 0]], [[1, 0], [1, 1]],
+        fox_red = create_detail_from_data('FOXRED', 'F', [[[0, 0], [1, 0]], [[1, 0], [1, 1]],
             [[0, 0], [1, 0]], [[0, 0], [1, 1]]])
-        light_blue = create_detail_from_data('LIGHTBLUE', [[[0, 0], [1, 0]], [[1, 0], [1, 1]],
+        light_blue = create_detail_from_data('LIGHTBLUE', 'L', [[[0, 0], [1, 0]], [[1, 0], [1, 1]],
             [[0, 0], [1, 1]], [[0, 0], [1, 0]]])
-        violet = create_detail_from_data('VIOLET', [[[0, 0], [1, 1]], [[1, 0], [1, 0]],
+        violet = create_detail_from_data('VIOLET', 'V', [[[0, 0], [1, 1]], [[1, 0], [1, 0]],
             [[1, 0], [1, 0]]])
-        light_green = create_detail_from_data('LIGHTGREEN', [[[1, 0], [1, 1]], [[0, 0], [1, 0]],
+        light_green = create_detail_from_data('LIGHTGREEN', 'S', [[[1, 0], [1, 1]], [[0, 0], [1, 0]],
             [[0, 0], [1, 1]]])
-        dark_blue = create_detail_from_data('DARKBLUE', [[[0, 0], [1, 1]], [[1, 0], [1, 0]],
+        dark_blue = create_detail_from_data('DARKBLUE', 'C', [[[0, 0], [1, 1]], [[1, 0], [1, 0]],
             [[0, 0], [1, 1]]])
 
         self.__named_details = {
@@ -71,9 +74,10 @@ class GameLogic(object):
 
     def put_detail_on_board(
             self, detail: Detail, coordinates: tuple) -> None:
-        self.__details.index(detail)
+        _detail_by_name = next(x for x in self.__details if detail.name == x.name)
+        self.__details.index(_detail_by_name)
         self.__board.add_object(detail, coordinates[0], coordinates[1])
-        self.__details.remove(detail)
+        self.__details.remove(_detail_by_name)
 
 
 def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Board, bool]:
@@ -93,17 +97,66 @@ def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Boar
         _game_logic.shuffle_details()
         yield from find_solutions(_game_logic, attempt)
 
+from multiprocessing import Process
 
 def find_solutions2(game_logic: GameLogic) -> Generator[Board, Board, bool]:
-    _list = list()
-    print(game_logic.details[:1])
-    for detail in game_logic.details[:1]:
+    _map = dict()
+    for detail in game_logic.details:
+        _map[detail.name] = []
         for (current_state_of_detail, coordinates) in try_to_put_detail(detail, game_logic.board):
-            _list.append((current_state_of_detail, coordinates))
-    print(len(_list))
-    # print(_list)
+            _map[detail.name].append((current_state_of_detail, coordinates))
+        print("Detail '%s' -> positions -> %d" % (detail.name, len(_map[detail.name])))
 
 
+    params = [_map[detail_name] for detail_name in _map]
+
+    _list_of_possible_combinations = [path for path in product(*params)] 
+    print(len(_list_of_possible_combinations))
+    shuffle(_list_of_possible_combinations)
+
+    i = 0
+    quarter = int(len(_list_of_possible_combinations)/4)
+    print(quarter)
+
+    _real_solutions_map = dict() 
+    for thread in range(4):
+        _real_solutions_map[thread] = []
+
+
+    s = SolutionCheckerThread('S1', game_logic, _list_of_possible_combinations, _real_solutions_map[0])
+    s.run()    
+
+    for _solution_result in _real_solutions_map:
+        for _solution in _real_solutions_map[_solution_result]:
+            yield _solution
+
+
+
+class SolutionCheckerThread(object):
+
+    def __init__(self, name_of_thread: str, game_logic: GameLogic, _combinations: List, result: List):
+        threading.Thread.__init__(self) 
+        self._name_of_thread = name_of_thread
+        self._game_logic = game_logic
+        self._combinations = _combinations
+        self._result = result
+
+    def run(self):
+        print(self._name_of_thread)
+        for _combination in self._combinations:
+            _copy_of_game_logic = deepcopy(self._game_logic)
+            i = 0
+            for (_detail, _coordinates) in _combination:
+                try:
+                    _copy_of_game_logic.put_detail_on_board(_detail, _coordinates)
+                    i += 1
+                except Exception:
+                    if (len(_combination) - i)  == 0:
+                        print("Left details: %s\nBoard: %s" % (len(_combination) - i, _copy_of_game_logic.board))
+                    break
+
+            if _copy_of_game_logic.board.is_complete():
+                self._result.append(_copy_of_game_logic.board)
 
 
 def try_to_put_detail(detail: Detail, board: Board) -> Generator[Tuple[Detail, Tuple], bool, bool]:

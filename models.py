@@ -93,17 +93,12 @@ class Side(object):
 
 class Detail(object):
 
-    def __init__(self, height: int, width: int, depth: int, name: str = ''):
+    def __init__(self, height: int, width: int, depth: int, name: str = '', symbol: str = '1'):
         self.__object = [[[0 for k in range(depth)] for j in range(width)] for i in range(height)]
         self.__side: int = 2
         self.__rotation_steps: List[int] = []
         self.__name = name
-
-    def __str__(self):
-        return self.__name
-
-    def __repr__(self):
-        return self.__name
+        self.__symbol = symbol
 
     @property
     def name(self):
@@ -129,8 +124,14 @@ class Detail(object):
     def side_index(self) -> int:
         return self.__side
 
+    @property
+    def symbol(self):
+        return self.__symbol
+    
+
     def __repr__(self) -> str:
-        return "\nside: %d\n%s" % (self.__side, str(self.get_current_side()))
+        return "\nName: %s\nside: %d\nSteps: %s\nDetail\n%s\n" % \
+        (self.__name, self.__side, self.__rotation_steps, str(self.get_current_side()))
 
     def __str__(self) -> str:
         return self.__repr__() 
@@ -147,6 +148,14 @@ class Detail(object):
             self.__rotation_steps = self.__rotation_steps[:-1]
         else:
             self.__rotation_steps.append(direction)
+            total_length = len(self.__rotation_steps)
+            if total_length >= 4:
+                if self.__rotation_steps[-1] == \
+                    self.__rotation_steps[-2] == \
+                    self.__rotation_steps[-3] == \
+                    self.__rotation_steps[-4]:
+                    self.__rotation_steps = self.__rotation_steps[0: -4] 
+
 
     def chose_side(self, side_index: int) -> None:
         if side_index < 1 or side_index > 5:
@@ -225,7 +234,7 @@ class Detail(object):
     
 
         
-def create_detail_from_data(name: str, data: List[List[List[int]]]) -> Detail:
-    _return = Detail(len(data), len(data[0]), len(data[0][0]), name)
+def create_detail_from_data(name: str, symbol: str, data: List[List[List[int]]]) -> Detail:
+    _return = Detail(len(data), len(data[0]), len(data[0][0]), name, symbol)
     _return.fill(data)
     return _return
