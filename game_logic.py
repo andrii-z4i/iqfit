@@ -52,15 +52,9 @@ class GameLogic(object):
     def details(self) -> List[Detail]:
         return self.__details
 
-    def has_details(self) -> bool:
-        return len(self.__details)
-
     @property
     def first_detail(self):
         return self.__details[0]
-
-    def shuffle_details(self):
-        shuffle(self.__details)
 
     @property
     def board(self) -> Board:
@@ -80,25 +74,6 @@ class GameLogic(object):
         self.__details.remove(_detail_by_name)
 
 
-def find_solutions(game_logic: GameLogic, attempt: int) -> Generator[Board, Board, bool]:
-    attempt += 1
-    _game_logic = deepcopy(game_logic)
-    while _game_logic.has_details():
-        detail = _game_logic.first_detail
-        (can_do_it, coordinates) = try_to_put_detail(detail, board)
-        if can_do_it:
-            _game_logic.put_detail_on_board(detail, coordinates)
-        else:
-            break
-    if not _game_logic.has_details():
-        yield _game_logic.board
-    else:
-        _game_logic = deepcopy(game_logic)
-        _game_logic.shuffle_details()
-        yield from find_solutions(_game_logic, attempt)
-
-from multiprocessing import Process
-
 def find_solutions2(game_logic: GameLogic) -> Generator[Board, Board, bool]:
     _map = dict()
     for detail in game_logic.details:
@@ -110,40 +85,22 @@ def find_solutions2(game_logic: GameLogic) -> Generator[Board, Board, bool]:
 
     params = [_map[detail_name] for detail_name in _map]
 
-    _list_of_possible_combinations = [path for path in product(*params)] 
-    print(len(_list_of_possible_combinations))
-    shuffle(_list_of_possible_combinations)
-
-    i = 0
-    quarter = int(len(_list_of_possible_combinations)/4)
-    print(quarter)
-
-    _real_solutions_map = dict() 
-    for thread in range(4):
-        _real_solutions_map[thread] = []
-
-
-    s = SolutionCheckerThread('S1', game_logic, _list_of_possible_combinations, _real_solutions_map[0])
-    s.run()    
-
-    for _solution_result in _real_solutions_map:
-        for _solution in _real_solutions_map[_solution_result]:
-            yield _solution
+    s = SolutionChecker('S1', game_logic, params)
+    for solution in s.run():
+        yield solution    
 
 
 
-class SolutionCheckerThread(object):
+class SolutionChecker(object):
 
-    def __init__(self, name_of_thread: str, game_logic: GameLogic, _combinations: List, result: List):
+    def __init__(self, name_of_thread: str, game_logic: GameLogic, _combinations: List):
         threading.Thread.__init__(self) 
         self._name_of_thread = name_of_thread
         self._game_logic = game_logic
         self._combinations = _combinations
-        self._result = result
 
-    def run(self):
-        print(self._name_of_thread)
-        for _combination in self._combinations:
+    def run(self) -> Generator[Board, None, bool]:
+        for _combination in product(*self._combinations):
             _copy_of_game_logic = deepcopy(self._game_logic)
             i = 0
             for (_detail, _coordinates) in _combination:
@@ -151,12 +108,10 @@ class SolutionCheckerThread(object):
                     _copy_of_game_logic.put_detail_on_board(_detail, _coordinates)
                     i += 1
                 except Exception:
-                    if (len(_combination) - i)  == 0:
-                        print("Left details: %s\nBoard: %s" % (len(_combination) - i, _copy_of_game_logic.board))
                     break
 
             if _copy_of_game_logic.board.is_complete():
-                self._result.append(_copy_of_game_logic.board)
+                yield _copy_of_game_logic.board
 
 
 def try_to_put_detail(detail: Detail, board: Board) -> Generator[Tuple[Detail, Tuple], bool, bool]:
