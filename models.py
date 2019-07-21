@@ -18,6 +18,23 @@ class Side(object):
     def height(self) -> int:
         return len(self.__array)
 
+    def __repr__(self):
+        _str_board = [' '.join([str(self.__array[y][x]) for x in range(self.width)]) for y in range(self.height)]
+        return "\n".join(_str_board)
+
+    def __str__(self):
+        return self.__repr__() 
+
+    def get_height_offset(self) -> int:
+        for y in range(self.height):
+            if self.__array[y][0]:
+                return y
+
+    def get_width_offset(self) -> int:
+        for x in range(self.width):
+            if self.__array[self.get_height_offset()][x]:
+                return x
+
     def fill(self, side: List) -> any:
         if len(side) != self.height:
             raise Exception("Wrong height")
@@ -76,10 +93,16 @@ class Side(object):
 
 class Detail(object):
 
-    def __init__(self, height: int, width: int, depth: int):
+    def __init__(self, height: int, width: int, depth: int, name: str = '', symbol: str = '1'):
         self.__object = [[[0 for k in range(depth)] for j in range(width)] for i in range(height)]
         self.__side: int = 2
         self.__rotation_steps: List[int] = []
+        self.__name = name
+        self.__symbol = symbol
+
+    @property
+    def name(self):
+        return self.__name
     
     @property
     def value(self) -> List[List[List[int]]]:
@@ -101,6 +124,18 @@ class Detail(object):
     def side_index(self) -> int:
         return self.__side
 
+    @property
+    def symbol(self):
+        return self.__symbol
+    
+
+    def __repr__(self) -> str:
+        return "\nName: %s\nside: %d\nSteps: %s\nDetail\n%s\n" % \
+        (self.__name, self.__side, self.__rotation_steps, str(self.get_current_side()))
+
+    def __str__(self) -> str:
+        return self.__repr__() 
+
     def rotate(self, direction = 1) -> None:  
         # direction = 1 - left, 
         # direction = -1 - Right
@@ -113,6 +148,14 @@ class Detail(object):
             self.__rotation_steps = self.__rotation_steps[:-1]
         else:
             self.__rotation_steps.append(direction)
+            total_length = len(self.__rotation_steps)
+            if total_length >= 4:
+                if self.__rotation_steps[-1] == \
+                    self.__rotation_steps[-2] == \
+                    self.__rotation_steps[-3] == \
+                    self.__rotation_steps[-4]:
+                    self.__rotation_steps = self.__rotation_steps[0: -4] 
+
 
     def chose_side(self, side_index: int) -> None:
         if side_index < 1 or side_index > 5:
@@ -185,8 +228,13 @@ class Detail(object):
 
         return self.get_side(_opposite_sides[self.__side])
 
+    @property
+    def sides(self):
+        return [2, 3, 4, 5] 
+    
+
         
-def create_detail_from_data(data: List[List[List[int]]]) -> Detail:
-    _return = Detail(len(data), len(data[0]), len(data[0][0]))
+def create_detail_from_data(name: str, symbol: str, data: List[List[List[int]]]) -> Detail:
+    _return = Detail(len(data), len(data[0]), len(data[0][0]), name, symbol)
     _return.fill(data)
     return _return
