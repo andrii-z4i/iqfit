@@ -54,9 +54,9 @@ class GameLogicTest(TestCase):
         for solution in find_solutions2(g):
             print(solution)
 
-    def test_find_all_solutions(self):
-        g = GameLogic()
-        self.assertEqual(len(g.details), 10)
-        for solution in find_solutions2(g):
-            print(solution)
+    # def test_find_all_solutions(self):
+    #     g = GameLogic()
+    #     self.assertEqual(len(g.details), 10)
+    #     for solution in find_solutions2(g):
+    #         print(solution)
 

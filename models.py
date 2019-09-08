@@ -2,10 +2,11 @@ from typing import List
 
 from copy import deepcopy
 
+
 class Side(object):
     def __init__(self, height: int, width: int):
         self.__array = [[0 for i in range(width)] for k in range(height)]
-    
+
     @property
     def value(self) -> List[List[int]]:
         return self.__array
@@ -23,7 +24,7 @@ class Side(object):
         return "\n".join(_str_board)
 
     def __str__(self):
-        return self.__repr__() 
+        return self.__repr__()
 
     def get_height_offset(self) -> int:
         for y in range(self.height):
@@ -57,11 +58,11 @@ class Side(object):
             for value in x:
                 if value != 0 and value != 1:
                     raise Exception("Wrong data")
-    
-    def rotate(self, direction = 1) -> None: 
+
+    def rotate(self, direction=1) -> None:
         # direction = 1 (left)
         # direction = -1 (Right)
-        
+
         _new_array = [[0 for i in range(self.height)] for k in range(self.width)]
 
         if direction == 1:
@@ -72,20 +73,22 @@ class Side(object):
             raise Exception("Wrong direction")
         self.__array = _new_array
 
-    def _rotate_left(self, new_array: List, old_array: List) -> None:
+    @staticmethod
+    def _rotate_left(new_array: List, old_array: List) -> None:
         i = 0
         for row in old_array:
             j = 0
-            for new_row in new_array:
+            for _ in new_array:
                 new_array[j][i] = row[len(row) - j - 1]
                 j += 1
             i += 1
 
-    def _rotate_right(self, new_array: List, old_array: List) -> None:
+    @staticmethod
+    def _rotate_right(new_array: List, old_array: List) -> None:
         i = 0
         for row in old_array[::-1]:
             j = 0
-            for new_row in new_array:
+            for _ in new_array:
                 new_array[j][i] = row[j]
                 j += 1
             i += 1
@@ -103,7 +106,7 @@ class Detail(object):
     @property
     def name(self):
         return self.__name
-    
+
     @property
     def value(self) -> List[List[List[int]]]:
         return self.__object
@@ -127,23 +130,22 @@ class Detail(object):
     @property
     def symbol(self):
         return self.__symbol
-    
 
     def __repr__(self) -> str:
         return "\nName: %s\nside: %d\nSteps: %s\nDetail\n%s\n" % \
-        (self.__name, self.__side, self.__rotation_steps, str(self.get_current_side()))
+               (self.__name, self.__side, self.__rotation_steps, str(self.get_current_side()))
 
     def __str__(self) -> str:
-        return self.__repr__() 
+        return self.__repr__()
 
-    def rotate(self, direction = 1) -> None:  
+    def rotate(self, direction=1) -> None:
         # direction = 1 - left, 
         # direction = -1 - Right
         if direction != 1 and direction != -1:
             raise Exception("Wrong direction")
 
         last_step = [self.__rotation_steps[-1]] \
-                if len(self.__rotation_steps) else []
+            if len(self.__rotation_steps) else []
         if len(last_step) and last_step[0] != direction:
             self.__rotation_steps = self.__rotation_steps[:-1]
         else:
@@ -151,11 +153,10 @@ class Detail(object):
             total_length = len(self.__rotation_steps)
             if total_length >= 4:
                 if self.__rotation_steps[-1] == \
-                    self.__rotation_steps[-2] == \
-                    self.__rotation_steps[-3] == \
-                    self.__rotation_steps[-4]:
-                    self.__rotation_steps = self.__rotation_steps[0: -4] 
-
+                        self.__rotation_steps[-2] == \
+                        self.__rotation_steps[-3] == \
+                        self.__rotation_steps[-4]:
+                    self.__rotation_steps = self.__rotation_steps[0: -4]
 
     def chose_side(self, side_index: int) -> None:
         if side_index < 1 or side_index > 5:
@@ -179,9 +180,8 @@ class Detail(object):
             for w in range(self.width):
                 for d in range(self.width):
                     if array[h][w][d] != 1 \
-                        and array[h][w][d] != 0:
+                            and array[h][w][d] != 0:
                         raise Exception("Wrong data")
-
 
     def get_side(self, side: int) -> Side:
         if side < 0 or side > 5:
@@ -224,16 +224,15 @@ class Detail(object):
             3: 5,
             4: 2,
             5: 3
-        } 
+        }
 
         return self.get_side(_opposite_sides[self.__side])
 
     @property
     def sides(self):
-        return [2, 3, 4, 5] 
-    
+        return [2, 3, 4, 5]
 
-        
+
 def create_detail_from_data(name: str, symbol: str, data: List[List[List[int]]]) -> Detail:
     _return = Detail(len(data), len(data[0]), len(data[0][0]), name, symbol)
     _return.fill(data)

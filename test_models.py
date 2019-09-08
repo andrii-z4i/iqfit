@@ -1,6 +1,7 @@
 from unittest import TestCase
 from models import Side, Detail
 
+
 class ModelsTest(TestCase):
 
     def test_fill_wrong_data(self):
