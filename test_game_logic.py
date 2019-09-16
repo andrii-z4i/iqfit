@@ -1,5 +1,6 @@
 from unittest import TestCase
-from game_logic import GameLogic, find_solutions2 
+from game_logic import GameLogic
+from solution import find_solutions2, find_solutions3
 
 
 class GameLogicTest(TestCase):
@@ -51,8 +52,16 @@ class GameLogicTest(TestCase):
         print(g.board)
         self.assertEqual(len(g.details), 3)
         # self.assertEqual(len(g.details), 4)
-        for solution in find_solutions2(g):
-            print(solution)
+
+        find_solutions3(g)
+
+        # for solution in find_solutions2(g):
+        #     print(solution)
+
+    # def test_solution_3(self):
+    #      g = GameLogic()
+    #      find_solutions3(g)
+
 
     # def test_find_all_solutions(self):
     #     g = GameLogic()
