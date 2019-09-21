@@ -53,7 +53,6 @@ class TreeElement(object):
         self._visited = True
 
     def try_to_put_detail(self, detail: Detail) -> Iterator[GameLogic]:
-        j = 0
         for coordinates in self._game.board.get_coordinates():
             for side in detail.sides:
                 detail.chose_side(side)
@@ -61,13 +60,11 @@ class TreeElement(object):
                     detail.rotate()
                     try:
                         _game = deepcopy(self._game)
-                        _game.put_detail_on_board(detail, (coordinates[1], coordinates[0]))
-                        if _game.board.is_complete() and not len(_game.details): # solution was found
-                            print('found solution')
-                            print(_game.board)
+                        _game.put_detail_on_board(detail, coordinates)
                         yield _game
                     except Exception as ex:
-                        j += 1
+                        continue
+                        # print('Can\'t put detail on board')
 
 
 def generate_children(element: TreeElement) -> Iterator[TreeElement]:

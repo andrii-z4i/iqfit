@@ -26,16 +26,6 @@ class Side(object):
     def __str__(self):
         return self.__repr__()
 
-    def get_height_offset(self) -> int:
-        for y in range(self.height):
-            if self.__array[y][0]:
-                return y
-
-    def get_width_offset(self) -> int:
-        for x in range(self.width):
-            if self.__array[self.get_height_offset()][x]:
-                return x
-
     def fill(self, side: List) -> any:
         if len(side) != self.height:
             raise Exception("Wrong height")

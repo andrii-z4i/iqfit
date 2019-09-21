@@ -1,24 +1,7 @@
-import threading
 from game_logic import GameLogic
 from board import Board
-from typing import Generator, List
+from typing import List, Iterator
 from tree import TreeElement, generate_children
-
-
-
-def find_solutions2(game_logic: GameLogic) -> Generator[Board, Board, None]:
-    _map = dict()
-    for detail in game_logic.details:
-        _map[detail.name] = []
-        for (current_state_of_detail, coordinates) in try_to_put_detail(detail, game_logic.board):
-            _map[detail.name].append((current_state_of_detail, coordinates))
-        print("Detail '%s' -> positions -> %d" % (detail.name, len(_map[detail.name])))
-
-    params = [_map[detail_name] for detail_name in _map]
-
-    s = SolutionChecker('S1', game_logic, params)
-    for solution in s.run():
-        yield solution
 
 
 def get_next_not_processed(elements: List[TreeElement]) -> TreeElement:
@@ -42,7 +25,7 @@ def process_element(_elements, _processed, _tree_element):
     _elements.remove(_tree_element)
 
 
-def find_solutions3(game_logic: GameLogic) -> Generator[Board, Board, None]:
+def find_solutions(game_logic: GameLogic) -> Iterator[Board]:
     _elements: List[TreeElement] = []
     _processed: List[TreeElement] = []
     # generate tree
@@ -55,27 +38,7 @@ def find_solutions3(game_logic: GameLogic) -> Generator[Board, Board, None]:
         _current = get_next_not_processed(_elements)
         process_element(_elements, _processed, _current)
 
-    print(len(_processed))
-
-
-class SolutionChecker(threading.Thread):
-
-    def __init__(self, name_of_thread: str, game_logic: GameLogic, _combinations: List):
-        threading.Thread.__init__(self)
-        self._name_of_thread = name_of_thread
-        self._game_logic = game_logic
-        self._combinations = _combinations
-
-    def run(self) -> Generator[Board, None, None]:
-        for _combination in product(*self._combinations):
-            _copy_of_game_logic = deepcopy(self._game_logic)
-            i = 0
-            for (_detail, _coordinates) in _combination:
-                try:
-                    _copy_of_game_logic.put_detail_on_board(_detail, _coordinates)
-                    i += 1
-                except Exception:
-                    break
-
-            if _copy_of_game_logic.board.is_complete():
-                yield _copy_of_game_logic.board
+    for element in _processed:
+        # if element.game.board.is_complete() and not len(element.game.details):
+        #if not len(element.game.details):
+        yield element.game.board
