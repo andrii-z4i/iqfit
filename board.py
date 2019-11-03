@@ -34,9 +34,9 @@ class Board(object):
         self._update_board(self.__objects)
 
     def is_complete(self) -> bool:
-       _side = Side(self.__height, self.__width)
-       _side.fill(self.__board)
-       return _side.calculate_square() == (self.__height * self.__width)
+        _side = Side(self.__height, self.__width)
+        _side.fill(self.__board)
+        return _side.calculate_square() == (self.__height * self.__width)
 
     def get_coordinates(self) -> Generator[tuple, tuple, None]:
         for x in range(self.__width):
@@ -88,7 +88,7 @@ class Board(object):
             _side = detail.get_current_side()
             self._fill_coordinates_from_side(_new_board, _side, _coordinates)
             self._fill_str_coordinates_from_side(_new_str_board, _side, _coordinates, detail.symbol)
-        
+
         self.__board = _new_board
         self.__str_board = _new_str_board
 
@@ -101,7 +101,8 @@ class Board(object):
                 if board[y][x] > 1:
                     raise Exception('Something went wrong')
 
-    def _fill_str_coordinates_from_side(self, board: List[List[chr]], side: Side, coordinates: Tuple[int, int], symbol: chr) -> None:
+    def _fill_str_coordinates_from_side(self, board: List[List[chr]], side: Side, coordinates: Tuple[int, int],
+                                        symbol: chr) -> None:
         _detail_matrix = self._generate_matrix_with_detail(side, coordinates)
 
         for x in range(self.__width):
