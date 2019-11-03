@@ -41,8 +41,8 @@ class Board(object):
     def get_coordinates(self) -> Generator[tuple, tuple, None]:
         for x in range(self.__width):
             for y in range(self.__height):
-                # if not self.__board[y][x]:
-                yield (x, y)
+                if not self.__board[y][x]:
+                    yield (x, y)
 
     def _check_if_detail_can_fit(self, detail: Detail, x: int, y: int) -> bool:
         _side_index = detail.side_index
