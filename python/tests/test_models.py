@@ -1,5 +1,5 @@
 from unittest import TestCase
-from models import Side, Detail
+from src.models import Side, Detail
 
 
 class ModelsTest(TestCase):

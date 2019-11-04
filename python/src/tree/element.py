@@ -1,6 +1,5 @@
-from models import Detail
-from board import Board
-from game_logic import GameLogic
+from src.models import Detail
+from src.game_logic import GameLogic
 from copy import deepcopy
 from typing import List, Iterator, Tuple
 from uuid import uuid1
