@@ -1,6 +1,7 @@
 from unittest import TestCase
 from models import Side, Detail
 
+
 class ModelsTest(TestCase):
 
     def test_fill_wrong_data(self):
@@ -33,8 +34,6 @@ class ModelsTest(TestCase):
         a.fill([[1, 0, 0], [1, 1, 1]])
         a.rotate(direction=-1)
         self.assertListEqual(a.value, [[1, 1], [1, 0], [1, 0]])
-        self.assertEqual(a.get_height_offset(), 0)
-        self.assertEqual(a.get_width_offset(), 0)
 
     def test_detail_fill(self):
         a = Detail(4, 2, 2)

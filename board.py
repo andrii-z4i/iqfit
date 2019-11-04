@@ -1,5 +1,5 @@
 from models import Detail, Side
-from typing import List, Generator
+from typing import List, Generator, Tuple
 
 
 class Board(object):
@@ -34,39 +34,50 @@ class Board(object):
         self._update_board(self.__objects)
 
     def is_complete(self) -> bool:
-       _side = Side(self.__height, self.__width)
-       _side.fill(self.__board)
-       return _side.calculate_square() == (self.__height * self.__width)
+        _side = Side(self.__height, self.__width)
+        _side.fill(self.__board)
+        return _side.calculate_square() == (self.__height * self.__width)
 
     def get_coordinates(self) -> Generator[tuple, tuple, None]:
-        for y in range(len(self.__board)):
-            for x in range(len(self.__board[0])):
+        for x in range(self.__width):
+            for y in range(self.__height):
                 if not self.__board[y][x]:
-                    yield (y, x)
+                    yield (x, y)
 
     def _check_if_detail_can_fit(self, detail: Detail, x: int, y: int) -> bool:
         _side_index = detail.side_index
         if detail.get_current_side().calculate_square() < \
                 detail.get_opposite_side().calculate_square():
-            raise Exception("Rotate detail")
+            return False
 
         _side = detail.get_current_side()
-        _y_position = y + _side.height - 1 - _side.get_height_offset()
-        _x_position = x + _side.width - 1 - _side.get_width_offset()
-        if (y - _side.get_height_offset()) < 0 or _y_position > self.__height or \
-                (x - _side.get_width_offset()) < 0 or _x_position > self.__width:
-            raise Exception("Detail is out of boundaries")
+        try:
+            _detail_matrix = self._generate_matrix_with_detail(_side, (x, y))
+        except Exception as ex:
+            return False
 
-        i = 0
-        for row in _side.value:
-            j = 0
-            for value in row:
-                if value and self.__board[y + i - _side.get_height_offset()][x + j - _side.get_width_offset()] :
+        for x in range(self.__width):
+            for y in range(self.__height):
+                if _detail_matrix.value[y][x] + self.__board[y][x] > 1:
                     return False
-                j += 1
-            i += 1
 
-        return True 
+        return True
+
+    def _generate_matrix_with_detail(self, side: Side, coordinates: Tuple[int, int]) -> Side:
+        _empty_side: Side = Side(self.__height, self.__width)  # filled by '0'
+        _x = coordinates[0]
+        _y = coordinates[1]
+
+        if (_x >= _empty_side.width) or (_x + side.width) > _empty_side.width:
+            raise Exception('Can\'t fit by width')
+        if (_y >= _empty_side.height) or (_y + side.height) > _empty_side.height:
+            raise Exception('Can\'t fit by height')
+
+        for x in range(side.width):
+            for y in range(side.height):
+                _empty_side.value[y + _y][x + _x] = side.value[y][x]
+
+        return _empty_side
 
     def _update_board(self, objects: dict) -> None:
         _new_board = [[0 for x in range(self.__width)] for y in range(self.__height)]
@@ -77,26 +88,27 @@ class Board(object):
             _side = detail.get_current_side()
             self._fill_coordinates_from_side(_new_board, _side, _coordinates)
             self._fill_str_coordinates_from_side(_new_str_board, _side, _coordinates, detail.symbol)
-        
+
         self.__board = _new_board
         self.__str_board = _new_str_board
 
-    def _fill_coordinates_from_side(self, board: List[List[int]], side: Side, coordinates: tuple) -> None:
-        i = 0
-        for row in side.value:
-            j = 0
-            for value in row:
-                if value:
-                    board[coordinates[1] + i - side.get_height_offset()][coordinates[0] + j - side.get_width_offset()] = value
-                j += 1
-            i += 1
+    def _fill_coordinates_from_side(self, board: List[List[int]], side: Side, coordinates: Tuple[int, int]) -> None:
+        _detail_matrix = self._generate_matrix_with_detail(side, coordinates)
 
-    def _fill_str_coordinates_from_side(self, board: List[List[chr]], side: Side, coordinates: tuple, symbol: chr) -> None:
-        i = 0
-        for row in side.value:
-            j = 0
-            for value in row:
-                if value:
-                    board[coordinates[1] + i - side.get_height_offset()][coordinates[0] + j - side.get_width_offset()] = symbol 
-                j += 1
-            i += 1
+        for x in range(self.__width):
+            for y in range(self.__height):
+                board[y][x] += _detail_matrix.value[y][x]
+                if board[y][x] > 1:
+                    raise Exception('Something went wrong')
+
+    def _fill_str_coordinates_from_side(self, board: List[List[chr]], side: Side, coordinates: Tuple[int, int],
+                                        symbol: chr) -> None:
+        _detail_matrix = self._generate_matrix_with_detail(side, coordinates)
+
+        for x in range(self.__width):
+            for y in range(self.__height):
+                if _detail_matrix.value[y][x] == 1:
+                    if board[y][x] != '-':
+                        raise Exception('Occupied')
+                    else:
+                        board[y][x] = symbol
