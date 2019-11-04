@@ -1,6 +1,6 @@
 from unittest import TestCase
-from game_logic import GameLogic
-from solution import find_solutions
+from src.game_logic import GameLogic
+from src.solution import find_solutions
 
 
 class GameLogicTest(TestCase):

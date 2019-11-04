@@ -1,4 +1,4 @@
-from models import Detail, Side
+from .models import Detail, Side
 from typing import List, Generator, Tuple
 
 

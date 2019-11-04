@@ -1,7 +1,7 @@
-from game_logic import GameLogic
-from board import Board
+from .game_logic import GameLogic
+from .board import Board
 from typing import List, Iterator
-from tree import TreeElement, generate_children
+from .tree import TreeElement, generate_children
 
 
 def get_next_not_processed(elements: List[TreeElement]) -> TreeElement:

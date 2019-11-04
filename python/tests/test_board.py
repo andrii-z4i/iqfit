@@ -1,6 +1,6 @@
 from unittest import TestCase
-from board import Board
-from models import Side, Detail
+from src.board import Board
+from src.models import Side, Detail
 from copy import deepcopy
 
 

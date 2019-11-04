@@ -2,4 +2,4 @@ language: python
 python:
         - "3.6"
 script:
-        - python -m unittest discover -p python/test_*.py -s .
+        - python -m unittest discover -p test_*.py -s python

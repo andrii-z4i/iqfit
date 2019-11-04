@@ -1,5 +1,5 @@
-from models import Detail, create_detail_from_data
-from board import Board
+from .models import Detail, create_detail_from_data
+from .board import Board
 from typing import List, Generator, Tuple
 from copy import deepcopy
 from random import shuffle
