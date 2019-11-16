@@ -149,8 +149,8 @@ class Detail(object):
                     self.__rotation_steps = self.__rotation_steps[0: -4]
 
     def chose_side(self, side_index: int) -> None:
-        if side_index < 1 or side_index > 5:
-            raise Exception("Only 2..5 sides")
+        if side_index < 0 or side_index > 5:
+            raise Exception("Only 0..5 sides")
 
         self.__side = side_index
 
