@@ -1,5 +1,5 @@
-from python.src.models import Detail
-from python.src.game_logic import GameLogic
+from src.models import Detail
+from src.game_logic import GameLogic
 
 
 class ShapeDataCollector(object):
